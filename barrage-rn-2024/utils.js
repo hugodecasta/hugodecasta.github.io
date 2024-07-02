@@ -4,7 +4,7 @@ export function group_by(data, column) {
         uniqs.map(u => [
             u,
             data.filter(l => l[column] == u)
-        ]).sort((a, b) => b[1].length - a[1].length)
+        ]).sort((a, b) => Object.keys(b[1]).length - Object.keys(a[1]).length)
     )
 }
 

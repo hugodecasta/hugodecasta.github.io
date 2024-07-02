@@ -1,11 +1,9 @@
 import { group_by, group_cascade } from "./utils.js"
-import { button, div, h1, hr, span } from "./vanille/components.js"
+import { button, create_elm, div, h1, hr, input, span } from "./vanille/components.js"
 
 const colors = await (await fetch('parti_color.json')).json()
 const data = await (await fetch('lg2024data.json')).json()
 const depts = Object.fromEntries((await (await fetch('deps.csv')).text()).split('\n').map(l => l.split(',')).map(d => [d[0], d]))
-
-console.log(depts)
 
 function title(t) {
     div().add(
@@ -66,9 +64,17 @@ function display_nest(nested, compers, liners) {
     const local_liners = [...liners]
     const comp = local_compers.shift()
     const liner = local_liners.shift()
-    if (Array.isArray(nested)) {
-        for (const e of nested) {
-            comp(e).add2(d)
+    const last = local_compers.length == 0
+    if (last) {
+        if (Array.isArray(nested)) {
+            for (const e of nested) {
+                comp(e).add2(d)
+            }
+        }
+        else {
+            for (const i in nested) {
+                comp(i, nested[i]).add2(d)
+            }
         }
     }
     else {
@@ -79,7 +85,8 @@ function display_nest(nested, compers, liners) {
                 display_nest(nested[name], local_compers, local_liners),
                 hr(),
             )
-            const b = button(comp(name, Object.keys(nested[name]).length), () => { disp = !disp; update() }).set_style({
+            const compi = comp(name, Object.keys(nested[name]).length)
+            const b = button(compi, () => { disp = !disp; update() }).set_style({
                 display: liner ? 'block' : 'inline-block'
             })
             function update() {
@@ -94,7 +101,14 @@ function display_nest(nested, compers, liners) {
 
 function disp_dept(code, number) {
     return div().add(
-        span(depts[code][1] + ' - ' + code, ' (' + number + ')')
+        span(code + ' - ' + depts[code][1], ' (' + number + ')')
+    )
+}
+
+function disp_circo_uni_cdt(libe_circo, [cdt]) {
+    return div().add(
+        span(libe_circo),
+        cdt_comp(cdt)
     )
 }
 
@@ -104,18 +118,40 @@ function ordonanceur(bases, cb) {
     return ord
 }
 
+function options_comp(options, cb) {
+    const option = Object.values(options)[0]
+    cb(option)
+    const option_id = Math.random()
+    return div().add(
+        ...Object.entries(options).map(([name, data], i) => {
+            const inp = input(i == 0, 'radio', () => cb(data)).set_attributes({ id: name, name: option_id })
+            inp.checked = i == 0
+            return span().add(
+                inp,
+                create_elm('label', '', name).set_attributes({ for: name })
+            ).set_style({ margin: '10px' })
+        })
+    ).set_style({ margin: '30px' })
+}
+
 title('Tour 1 : Désistements nécessaires ...')
 const disp_t1_des = div()
-ordonanceur(
-    [
-        ['Parti', 'CodNuaCand', parti_comp, false,],
-        ['Département', 'Departement', disp_dept, true],
-        ['Circonscription', 'LibCirElec', (t, n) => span(t, ' (' + n + ')'), false],
-    ],
+options_comp(
+    {
+        'Partis': [
+            ['CodNuaCand', parti_comp, false,],
+            ['Departement', disp_dept, true],
+            ['LibCirElec', disp_circo_uni_cdt, true],
+        ],
+        'Département': [
+            ['Departement', disp_dept, true],
+            ['LibCirElec', disp_circo_uni_cdt, true],
+        ],
+    },
     (order) => {
-        const des = group_cascade(data.filter(c => c.PT1 == 3), order.map(o => o[1]))
+        const des = group_cascade(data.filter(c => c.PT1 == 3), order.map(o => o[0]))
         disp_t1_des.clear()
-        disp_t1_des.add(display_nest(des, [...order.map(o => o[2]), cdt_comp], [...order.map(o => o[3]), false]))
+        disp_t1_des.add(display_nest(des, order.map(o => o[1]), order.map(o => o[2])))
     }
 ).add2b()
 disp_t1_des.add2b()
