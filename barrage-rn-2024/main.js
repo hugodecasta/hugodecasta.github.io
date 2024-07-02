@@ -1,33 +1,41 @@
 import { group_by, group_cascade } from "./utils.js"
-import { button, create_elm, div, h1, hr, input, span } from "./vanille/components.js"
+import { button, create_elm, div, h1, hr, input, p, span } from "./vanille/components.js"
 
 const colors = await (await fetch('parti_color.json')).json()
 const data = await (await fetch('lg2024data.json')).json()
 const depts = Object.fromEntries((await (await fetch('deps.csv')).text()).split('\n').map(l => l.split(',')).map(d => [d[0], d]))
 
+const mobile = window.innerWidth < 600
+
+document.body.style.padding = mobile ? '20px' : '0px'
+
 function title(t) {
     div().add(
-        div().set_style({
-            width: '50px',
-            margin: '30px',
-            width: '30px',
-            height: '5px',
-            background: '#aaa',
-            display: 'inline-block',
-            marginBottom: '7px'
-        }),
-        h1(t).set_style({
-            color: '#aaa', display: 'inline-block'
-        })
+        ...[
+            mobile ? null : div().set_style({
+                width: '50px',
+                margin: '30px',
+                width: '30px',
+                height: '5px',
+                background: '#aaa',
+                display: 'inline-block',
+                marginBottom: '7px'
+            }),
+            h1(t).set_style({
+                color: '#aaa', display: 'inline-block'
+            })
+        ].filter(e => e)
     ).add2b().set_style({
-        marginLeft: '-100px'
+        marginLeft: mobile ? '0px' : '-100px',
+        marginTop: '100px',
     })
 }
 
 h1("Barrage contre l'XD - 2024").add2b().set_style({
     width: '100%',
     textAlign: 'center',
-    fontSize: '50px'
+    fontSize: '50px',
+    marginBottom: '-50px'
 })
 
 function cdt_comp(cdt) {
@@ -134,16 +142,29 @@ function options_comp(options, cb) {
     ).set_style({ margin: '30px' })
 }
 
+// ----------------------------------------------------------------------------- T1
+
 title('Tour 1 : Désistements nécessaires ...')
+
+p("Après le premier tours, suite à un record de participation électorale, de nombres circonscroptions se sont retrouvées" +
+    " dans la configuration triangulaire, c'est à dire avec trois candidats admissibles au second tour." +
+    " Lorsque des trianglulaire se mettent en place, il est possible pour un candidat de se désister " +
+    "en donnant pour consigne à ses électeurs de donner leurs voix à un candidat désigné parmi les deux restants." +
+    " De cette manière, dans les circonscriptions en triangulaires dans lesquelles l'XD est arrivée en tête, un barrage est possible " +
+    "si le candidat arrivé en 3ème place se désiste et donne pour consigne de voter pour l'adversaire de l'XD." +
+    " Les données ci-dessous indiquent les désistements nécessaires pour faire barrage à " +
+    "l'XD dans les circonscriptions triangulaires avec XD à la première place au premier tour.")
+    .add2b().set_style({ textAlign: 'justify' })
+
 const disp_t1_des = div()
 options_comp(
     {
-        'Partis': [
+        ' par Parti': [
             ['CodNuaCand', parti_comp, false,],
             ['Departement', disp_dept, true],
             ['LibCirElec', disp_circo_uni_cdt, true],
         ],
-        'Département': [
+        ' par Département': [
             ['Departement', disp_dept, true],
             ['LibCirElec', disp_circo_uni_cdt, true],
         ],
@@ -155,3 +176,9 @@ options_comp(
     }
 ).add2b()
 disp_t1_des.add2b()
+
+// ----------------------------------------------------------------------------- T2
+
+title('Inter Tour : Le barrage se met en place...')
+
+p('Coming soon !').add2b()
