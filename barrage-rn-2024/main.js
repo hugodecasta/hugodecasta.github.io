@@ -153,7 +153,7 @@ p("Après le premier tours, suite à un record de participation électorale, de 
     " De cette manière, dans les circonscriptions en triangulaires dans lesquelles l'XD est arrivée en tête, un barrage est possible " +
     "si le candidat arrivé en 3ème place se désiste et donne pour consigne de voter pour l'adversaire de l'XD." +
     " Les données ci-dessous indiquent les désistements nécessaires pour faire barrage à " +
-    "l'XD dans les circonscriptions triangulaires avec XD à la première place au premier tour.")
+    "l'XD dans les circonscriptions triangulaires avec XD à la première place suite au premier tour des législatives de 2024 en France.")
     .add2b().set_style({ textAlign: 'justify' })
 
 const disp_t1_des = div()
